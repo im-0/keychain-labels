@@ -1,0 +1,34 @@
+#!/bin/sh
+
+fc_list()
+{
+	fc-list -f "%{file}\n" "${1}"
+}
+
+find_font()
+{
+	if [ $( fc_list "${1}" | wc -l ) -ne 1 ]; then
+		echo "No fonts or more then one font matched '${1}'" >&2
+		exit 1
+	fi
+	fc_list "${1}"
+}
+
+set -xeu
+
+# Path to dumpscad.py from https://github.com/arpruss/zttf
+DUMPSCAD="${1}"
+
+export PYTHONPATH=$( dirname "${DUMPSCAD}" )
+
+test -e "./generate-font-metrics"
+
+while read font; do
+	font_file=$( find_font "${font}" )
+	python "${DUMPSCAD}" "${font_file}"
+done <"./libfontmetricsdata.list" >"./libfontmetricsdata.scad"
+
+echo "FONTS = [" >>"./libfontmetricsdata.scad"
+sed -n "s,^\\(FONT_[^ ]*\\).*$,\\1\\,,p" "./libfontmetricsdata.scad" >>"./libfontmetricsdata.scad"
+echo "];" >>"./libfontmetricsdata.scad"
+
