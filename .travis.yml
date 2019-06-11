@@ -1,0 +1,26 @@
+os:
+  - linux
+
+dist: xenial
+
+# To install additional packages.
+sudo: required
+
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get -qq install -y openscad libfuse2 wget fonts-liberation
+  # Remove OpenSCAD and MCAD without removing dependencies.
+  - sudo apt-get -qq remove -y openscad openscad-mcad
+  - sudo wget -q -c -t 5 -T 15 -O "/usr/local/bin/openscad" "https://files.openscad.org/OpenSCAD-2019.05-x86_64.AppImage"
+  - sudo chmod a+x "/usr/local/bin/openscad"
+  - sudo wget -q -c -t 5 -T 15 -O "/var/tmp/openscad.src.tar.gz" "https://files.openscad.org/openscad-2019.05.src.tar.gz"
+  - tar -C "/var/tmp" -xzf "/var/tmp/openscad.src.tar.gz"
+  - mv /var/tmp/openscad-* "/var/tmp/openscad"
+  - mkdir -pv ~/.local/share/fonts
+  - cp -v ./stencil-font/USSR-STENCIL.ttf ~/.local/share/fonts/
+
+script:
+  - make clean
+  - ln -sv /var/tmp/openscad/libraries/* ./
+  - make OPENSCAD=/usr/local/bin/openscad all
+  - make OPENSCAD=/usr/local/bin/openscad example
