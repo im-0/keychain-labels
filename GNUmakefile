@@ -44,3 +44,9 @@ out/%.stl: %.scad
 
 .PHONY: all
 all: out/keychain-labels.stl
+
+example.stl: out/keychain-labels.example.stl
+	$(CP) --verbose $(^) "./example.stl"
+
+.PHONY: example
+example: example.stl
