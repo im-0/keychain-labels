@@ -77,10 +77,18 @@ module _text(
 			size=txt_font_size,
 			width=usable_width,
 			halign=txt_halign);
-	txt_x_off = -txt_m[0].x - txt_m[1].x / 2.0;
+	txt_x_off =
+		txt_halign == "left" ?
+			-usable_width / 2.0 :
+		txt_halign == "center" ?
+			0.0 :
+		txt_halign == "right" ?
+			usable_width / 2.0 :
+		undef;
 	txt_depth = txt_m[1].y;
 	txt_y_off = -txt_m[0].y - txt_depth / 2.0;
 
+	assert(!is_undef(txt_x_off));
 	assert(txt_depth < usable_depth);
 
 	translate([txt_x_off, txt_y_off, 0.0]) {
